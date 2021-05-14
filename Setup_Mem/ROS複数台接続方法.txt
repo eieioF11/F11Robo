@@ -1,0 +1,19 @@
+ROS複数台接続
+
+PC :ip 192.168.0.117
+    export ROS_IP=192.168.0.117
+    roscore
+
+raspberry pi :ip 192.168.0.111
+    端末を開き直したり別の端末からノードを起動する場合は必ず以下のコマンドを実行
+    export ROS_MASTER_URI=http://192.168.0.117:11311
+    export ROS_IP=192.168.0.111
+    ノードの確認
+    rosnode list
+    シリアル接続　
+    以下のコマンドでデバイスを確認
+    ls -l /dev/serial/by-id/
+    上のコマンドで確認したポート番号のコマンドを実施　
+    rosrun rosserial_python serial_node.py /dev/ttyUSB0 _baud:=115200
+                                or
+    rosrun rosserial_python serial_node.py /dev/ttyUSB1 _baud:=115200
