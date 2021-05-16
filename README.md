@@ -25,7 +25,7 @@ rosrun rosserial_python serial_node.py /dev/ttyUSB0 _baud:=115200
 sudo adduser LOGIN_NAME dialout
 tail -f /var/log/syslog | grep tty
 ```
-デバイスを差したあと//
+デバイスを差したあと\\
 F11Roboのシリアル変換ICの情報を確認　(vendor ID(ID_VENDOR_ID) product ID(ID_MODEL_ID))
 ```bash
 udevadm info -q all -n /dev/ttyUSB0
