@@ -10,7 +10,7 @@ roscore
 export ROS_MASTER_URI=http://192.168.0.117:11311
 export ROS_IP=192.168.0.111
 ```
-#ROS serial
+# ROS serial
 デバイスを確認
 ```bash
 ls -l /dev/serial/by-id/
@@ -19,13 +19,13 @@ ls -l /dev/serial/by-id/
 ```bash
 rosrun rosserial_python serial_node.py /dev/ttyUSB0 _baud:=115200
 ```
-#デバイス名での接続
-デバイスを接続する前
+## デバイス名での接続
+### デバイスを接続する前
 ```bash
 sudo adduser LOGIN_NAME dialout
 tail -f /var/log/syslog | grep tty
 ```
-デバイスを差したあと
+### デバイスを差したあと
 F11Roboのシリアル変換ICの情報を確認　(vendor ID(ID_VENDOR_ID) product ID(ID_MODEL_ID))
 ```bash
 udevadm info -q all -n /dev/ttyUSB0
