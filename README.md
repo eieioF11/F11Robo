@@ -19,7 +19,7 @@ ls -l /dev/serial/by-id/
 ```bash
 rosrun rosserial_python serial_node.py /dev/ttyUSB0 _baud:=115200
 ```
-デバイス名での接続
+#デバイス名での接続
 デバイスを接続する前
 ```bash
 sudo adduser LOGIN_NAME dialout
