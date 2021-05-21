@@ -76,4 +76,8 @@ roslaunch F11Robo navigation.launch
 navigation実行時のノード図
 ![node](/image/rosgraph.png)
 # Goal generator
+navigationを起動後以下のコマンドを実行する
+```bash
+rosrun  F11Robo F11Robo_node
+```
 ![goal](/image/goal.png)
