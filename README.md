@@ -58,7 +58,22 @@ sudo service udev reload
 ls /dev/F11Robo
 ```
 上記のコマンドでF11Roboが表示されれば成功
+# ロボット側のノード
+ロボット側ではないPCでroscoreを実行したあと以下のコマンドを実行する
+```bash
+roslaunch F11Robo F11Robo_core.launch
+```
+# mapping
+以下のコマンドを入力して実行する
+```bash
+roslaunch F11Robo gmapping.launch
+```
 # navigation
+以下のコマンドを入力して起動する    
+```bash
+roslaunch F11Robo navigation.launch
+```
+navigation実行時のノード図
 ![node](/image/rosgraph.png)
 # Goal generator
 ![goal](/image/goal.png)
