@@ -1,8 +1,8 @@
 DWAPlannerROS:
 
 # Robot Configuration Parameters
-  max_vel_x: 0.22           #ロボットの最大x速度（m / s）
-  min_vel_x: -0.22          #ロボットの最小x速度（m / s）後方への動きの場合は負
+  max_vel_x: 0.15           #0.22[m/s] ロボットの最大x速度（m / s）
+  min_vel_x: -0.15          #-0.22[m/s] ロボットの最小x速度（m / s）後方への動きの場合は負
 
   max_vel_y: 0.0            #ロボットの最大y速度（m / s）
   min_vel_y: 0.0            #ロボットの最小y速度（m / s）
