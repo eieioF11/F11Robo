@@ -58,3 +58,7 @@ sudo service udev reload
 ls /dev/F11Robo
 ```
 上記のコマンドでF11Roboが表示されれば成功
+# navigation
+![node](/image/rosgraph.png)
+# Goal generator
+![goal](/image/goal.png)
