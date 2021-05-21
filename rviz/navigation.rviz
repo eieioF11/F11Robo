@@ -4,7 +4,7 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /TF1/Frames1
+        - /TF1
         - /TF1/Tree1
         - /Global Map1/Costmap1
         - /Global Map1/Planner1
@@ -67,7 +67,7 @@ Visualization Manager:
         laser:
           Value: false
         map:
-          Value: false
+          Value: true
         odom:
           Value: false
       Marker Scale: 1
@@ -328,5 +328,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1920
-  X: 1920
+  X: 0
   Y: 28
