@@ -11,6 +11,16 @@ roscore
 export ROS_MASTER_URI=http://192.168.0.117:11311
 export ROS_IP=192.168.0.111
 ```
+## bashrcへの記入
+geditがインストールされている場合。gedit以外のエディタを使用してもよ。
+```bash
+gedit ~/.bashrc
+```
+以下の内容を記載すると開くたびに上記のexportコマンドが実行される。
+```bash
+export ROS_MASTER_URI=http://192.168.0.117:11311
+export ROS_IP=F11.local
+```
 # ROS serial
 デバイスを確認
 ```bash
