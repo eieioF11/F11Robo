@@ -83,9 +83,13 @@ rosrun teleop_twist_keyboard teleop_twist_keyboard.py
 ```bash
 roslaunch F11Robo gmapping.launch
 ```
-マップ保存
+## マップ保存
 ```bash
-rosrun map_server map_saver _map:=map
+rosrun map_server map_saver -f ファイル名
+```
+Ex. ファイル名がmapのとき
+```bash
+rosrun map_server map_saver -f  map
 ```
 # navigation
 以下のコマンドを入力して起動する    
