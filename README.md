@@ -96,6 +96,10 @@ rosrun map_server map_saver -f  map
 ```bash
 roslaunch F11Robo navigation.launch
 ```
+マップファイルを指定して起動する場合(以下はマップファイル名がmap.yamlのとき)
+```bash
+roslaunch F11Robo navigation.launch map_file:=$HOME/map.yaml
+```
 navigation実行時のノード図
 ![node](/image/rosgraph.png)
 # Goal generator
