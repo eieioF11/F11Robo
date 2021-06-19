@@ -87,11 +87,11 @@ roslaunch F11Robo gmapping.launch
 ```bash
 rosrun map_server map_saver -f ファイル名
 ```
-![map](/map/maymap1.jpg)
 Ex. ファイル名がmapのとき
 ```bash
 rosrun map_server map_saver -f  map
 ```
+![map](/image/maymap1.jpg)
 # navigation
 以下のコマンドを入力して起動する    
 ```bash
