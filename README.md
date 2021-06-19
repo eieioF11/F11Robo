@@ -91,6 +91,7 @@ Ex. ファイル名がmapのとき
 ```bash
 rosrun map_server map_saver -f  map
 ```
+以下のようなマップが保存される(画像はmapディレクトリにあるサンプル地図)
 ![map](/image/mymap1.jpg)
 # navigation
 以下のコマンドを入力して起動する    
