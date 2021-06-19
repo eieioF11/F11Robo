@@ -108,3 +108,16 @@ navigationを起動後以下のコマンドを実行する
 rosrun  F11Robo F11Robo_node
 ```
 ![goal](/image/goal.png)
+
+# Raspberry Pi4 メモ
+## 時刻手動設定
+ラズパイ単体ではなく外部のPCと接続してロボットを動作させる場合時刻の同期が必要になる
+```bash
+sudo date --set='YYYY/MM/DD hh:mm:ss'
+sudo date MMDDhhmmYYYY.ss
+```
+Ex. 2021年5月1日 1時30分30秒
+```bash
+sudo date --set='2021/05/01 01:30:30'
+sudo date 050101302021.30
+```
