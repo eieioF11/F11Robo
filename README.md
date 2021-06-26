@@ -73,6 +73,10 @@ ls /dev/F11Robo
 ```bash
 roslaunch F11Robo F11Robo_core.launch
 ```
+カメラを使用する場合は以下のコマンドを実行する
+```bash
+rosrun cv_camera cv_camera_node _property_0_code:=404 _property_0_code:=1
+```
 # キーボード操作
 以下のコマンドを実行するとキーボードからロボットを操作できる。
 ```bash
