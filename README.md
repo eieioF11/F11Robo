@@ -11,6 +11,16 @@ roscore
 export ROS_MASTER_URI=http://192.168.0.117:11311
 export ROS_IP=192.168.0.111
 ```
+## bashrcへの記入
+geditがインストールされている場合。gedit以外のエディタを使用してもよ。
+```bash
+gedit ~/.bashrc
+```
+以下の内容を記載すると開くたびに上記のexportコマンドが実行される。
+```bash
+export ROS_MASTER_URI=http://192.168.0.117:11311
+export ROS_IP=F11.local
+```
 # ROS serial
 デバイスを確認
 ```bash
@@ -63,15 +73,34 @@ ls /dev/F11Robo
 ```bash
 roslaunch F11Robo F11Robo_core.launch
 ```
+# キーボード操作
+以下のコマンドを実行するとキーボードからロボットを操作できる。
+```bash
+rosrun teleop_twist_keyboard teleop_twist_keyboard.py
+```
 # mapping
 以下のコマンドを入力して実行する
 ```bash
 roslaunch F11Robo gmapping.launch
 ```
+## マップ保存
+```bash
+rosrun map_server map_saver -f ファイル名
+```
+Ex. ファイル名がmapのとき
+```bash
+rosrun map_server map_saver -f  map
+```
+以下のようなマップが保存される(画像はmapディレクトリにあるサンプル地図)
+![map](/image/mymap1.jpg)
 # navigation
 以下のコマンドを入力して起動する    
 ```bash
 roslaunch F11Robo navigation.launch
+```
+マップファイルを指定して起動する場合(以下はマップファイル名がmap.yamlのとき)
+```bash
+roslaunch F11Robo navigation.launch map_file:=$HOME/map.yaml
 ```
 navigation実行時のノード図
 ![node](/image/rosgraph.png)
@@ -81,3 +110,16 @@ navigationを起動後以下のコマンドを実行する
 rosrun  F11Robo F11Robo_node
 ```
 ![goal](/image/goal.png)
+
+# Raspberry Pi4 メモ
+## 時刻手動設定
+ラズパイ単体ではなく外部のPCと接続してロボットを動作させる場合時刻の同期が必要になる
+```bash
+sudo date --set='YYYY/MM/DD hh:mm:ss'
+sudo date MMDDhhmmYYYY.ss
+```
+Ex. 2021年5月1日 1時30分30秒
+```bash
+sudo date --set='2021/05/01 01:30:30'
+sudo date 050101302021.30
+```
