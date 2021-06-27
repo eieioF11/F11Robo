@@ -17,8 +17,9 @@ geditがインストールされている場合。gedit以外のエディタを�
 gedit ~/.bashrc
 ```
 以下の内容を記載すると開くたびに上記のexportコマンドが実行される。
+(ホスト名がそれぞれspectref11,F11のときの場合）
 ```bash
-export ROS_MASTER_URI=http://192.168.0.117:11311
+export ROS_MASTER_URI=http://spectref11.local:11311
 export ROS_IP=F11.local
 ```
 # ROS serial
