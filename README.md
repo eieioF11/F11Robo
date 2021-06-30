@@ -1,5 +1,9 @@
 # F11Robo
 # 開発メモ
+## ラズパイでcatkin_make_isolatedが実行できない場合
+```bash
+sudo chown $USER: -R /home/pi/ros_catkin_ws
+```
 ## ROS 複数台接続方法
 メインPCのIPが192.168.0.117のとき
 ```bash
@@ -69,6 +73,14 @@ sudo service udev reload
 ls /dev/F11Robo
 ```
 上記のコマンドでF11Roboが表示されれば成功
+##カメラを使用するためのノードインストール方法(ラズパイ)
+ワークスペースのsrcに移動して以下のコマンドを実行
+```bash
+git clone https://github.com/ros-perception/image_common.git
+git clone https://github.com/OTL/cv_camera.git
+cd ../
+catkin_make_isolated
+```
 # ロボット側のノード
 ロボット側ではないPCでroscoreを実行したあと以下のコマンドを実行する
 ```bash
