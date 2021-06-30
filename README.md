@@ -77,6 +77,9 @@ ls /dev/F11Robo
 ワークスペースのsrcに移動して以下のコマンドを実行
 ```bash
 git clone https://github.com/ros-perception/image_common.git
+cd ../
+catkin_make_isolated
+cd src
 git clone https://github.com/OTL/cv_camera.git
 cd ../
 catkin_make_isolated
