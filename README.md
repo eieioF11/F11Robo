@@ -73,7 +73,7 @@ sudo service udev reload
 ls /dev/F11Robo
 ```
 上記のコマンドでF11Roboが表示されれば成功
-##カメラを使用するためのノードインストール方法(ラズパイ)
+## カメラを使用するためのノードインストール方法(ラズパイ)
 ワークスペースのsrcに移動して以下のコマンドを実行
 ```bash
 git clone https://github.com/ros-perception/image_common.git
