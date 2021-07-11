@@ -96,6 +96,14 @@ rosrun cv_camera cv_camera_node _property_0_code:=404 _property_0_code:=1
 ```bash
 rosrun teleop_twist_keyboard teleop_twist_keyboard.py
 ```
+gazeboで動かす場合
+```bash
+rosrun teleop_twist_keyboard teleop_twist_keyboard.py cmd_vel:=/F11Robo/diff_drive_controller/cmd_vel
+```
+# Gazebo
+```bash
+roslaunch F11Robo gazebo.launch
+```
 # mapping
 以下のコマンドを入力して実行する
 ```bash
@@ -112,7 +120,7 @@ rosrun map_server map_saver -f  map
 以下のようなマップが保存される(画像はmapディレクトリにあるサンプル地図)
 ![map](/image/mymap1.jpg)
 # navigation
-以下のコマンドを入力して起動する    
+以下のコマンドを入力して起動する
 ```bash
 roslaunch F11Robo navigation.launch
 ```
