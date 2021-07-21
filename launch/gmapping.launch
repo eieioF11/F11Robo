@@ -1,22 +1,22 @@
 <launch>
-  <!--TF-->
-  <node pkg="tf" type="static_transform_publisher" name="odom_2_base_link" args="0.05 0 0 3.1416 0 0 base_link laser 1" />
-  <!-- gmapping -->
-  <node pkg="gmapping" type="slam_gmapping" name="mapper">
-    <param name="maxUrange" value="8.0" type="double" />
-    <param name="delta" value="0.03" />
-    <param name="xmax" value="30" type="double" />
-    <param name="ymax" value="30" type="double" />
-    <param name="xmin" value="-30" type="double" />
-    <param name="ymin" value="-30" type="double" />
-  </node>
+	<!--TF-->
+	<node pkg="tf" type="static_transform_publisher" name="odom_2_base_link" args="0.05 0 0 3.1416 0 0 base_link laser 1" />
+	<!-- gmapping -->
+	<node pkg="gmapping" type="slam_gmapping" name="mapper">
+		<param name="maxUrange" value="8.0" type="double" />
+		<param name="delta" value="0.03" />
+		<param name="xmax" value="30" type="double" />
+		<param name="ymax" value="30" type="double" />
+		<param name="xmin" value="-30" type="double" />
+		<param name="ymin" value="-30" type="double" />
+	</node>
 
-  <!-- Robot model -->
-	<arg name="model" default="$(find F11Robo)/urdf/F11Robo.urdf" />
-  <arg name="gui" default="true" />
-  <param name="robot_description" textfile="$(arg model)" />
+	<!-- Robot model -->
+		<arg name="model" default="$(find F11Robo)/urdf/F11Robo.urdf" />
+	<arg name="gui" default="true" />
+	<param name="robot_description" textfile="$(arg model)" />
 
-  <!-- rviz -->
-  <node pkg="rviz" type="rviz" args="-d '$(find F11Robo)/rviz/gmapping.rviz'" name="visualizer" respawn="true" />
+	<!-- rviz -->
+	<node pkg="rviz" type="rviz" args="-d '$(find F11Robo)/rviz/gmapping.rviz'" name="visualizer" respawn="true" />
 
 </launch>

@@ -5,6 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /TF1
+        - /TF1/Frames1
         - /TF1/Tree1
         - /Map1
         - /Global Map1/Costmap1
@@ -14,6 +15,7 @@ Panels:
         - /Local Map1/Costmap1
         - /Local Map1/Planner1
         - /Image2
+        - /Marker1
       Splitter Ratio: 0.5
     Tree Height: 492
   - Class: rviz/Selection
@@ -34,7 +36,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: LaserScan
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -69,13 +71,21 @@ Visualization Manager:
           Value: true
         laser:
           Value: false
+        map:
+          Value: true
+        odom:
+          Value: false
       Marker Scale: 1
       Name: TF
       Show Arrows: false
       Show Axes: true
       Show Names: false
       Tree:
-        {}
+        map:
+          odom:
+            base_link:
+              laser:
+                {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -299,6 +309,14 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: ""
+      Name: Marker
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -336,11 +354,11 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 42.00996398925781
+      Scale: 414.9145202636719
       Target Frame: <Fixed Frame>
       Value: TopDownOrtho (rviz)
-      X: 1.026323914527893
-      Y: -8.038291931152344
+      X: 0.2935061752796173
+      Y: 0.8739045262336731
     Saved: ~
 Window Geometry:
   Displays:
