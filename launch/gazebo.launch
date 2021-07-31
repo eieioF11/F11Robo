@@ -11,10 +11,14 @@
 		<arg name="debug" value="false"/>
 	</include>
 
-	<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model dtw_robot" />
+	<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model F11Robo" />
 
+	<param name="/F11Robo/diff_drive_controller/enable_odom_tf" value="true" />
 	<rosparam command="load" file="$(find F11Robo)/param/diff_drive_controller.yaml" ns="/F11Robo" />
-	<node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/F11Robo"
-		args="diff_drive_controller" />
+	<rosparam command="load"  file="$(find F11Robo)/param/joint_state_controller.yaml" ns="/F11Robo"/>
 
+	<node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/F11Robo"
+		args="diff_drive_controller  joint_state_controlle" />
+
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen" ns="/F11Robo"/>
 </launch>
