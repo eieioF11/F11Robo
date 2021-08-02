@@ -18,7 +18,7 @@
 	<rosparam command="load"  file="$(find F11Robo)/param/joint_state_controller.yaml" ns="/F11Robo"/>
 
 	<node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/F11Robo"
-		args="diff_drive_controller  joint_state_controlle" />
+		args="diff_drive_controller  joint_state_controller" />
 
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen" ns="/F11Robo"/>
 </launch>
