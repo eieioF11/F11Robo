@@ -51,6 +51,10 @@ roslaunch F11Robo gazebo.launch
 ```bash
 roslaunch F11Robo gmapping.launch
 ```
+gazeboで動かす場合
+```bash
+roslaunch F11Robo gmapping_gazebo.launch
+```
 ## マップ保存
 ```bash
 rosrun map_server map_saver -f ファイル名
