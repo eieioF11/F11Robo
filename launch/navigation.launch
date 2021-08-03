@@ -32,7 +32,7 @@
 	</include>
 
 	<!-- Robot model -->
-		<arg name="model" default="$(find F11Robo)/urdf/F11Robo.urdf" />
+	<arg name="model" default="$(find F11Robo)/urdf/F11Robo.urdf" />
 	<arg name="gui" default="true" />
 	<param name="robot_description" textfile="$(arg model)" />
 
