@@ -137,7 +137,7 @@ class Simple_path_follower():
                 self.target_yaw = math.atan2(target_lookahed_y-self.current_y,target_lookahed_x-self.current_x)
                 self.cflag=False
             target_yaw=self.target_yaw
-            print "target:",target_lookahed_x,target_lookahed_y,target_yaw
+
             #check vehicle orientation
             # if target_yaw - self.target_yaw_last < -math.pi:
             #     target_yaw = 2*math.pi + target_yaw
