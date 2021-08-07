@@ -4,8 +4,6 @@
 	<arg name="map_file" default="$(find F11Robo)/map/mymap1.yaml"/>
 	<arg name="open_rviz" default="true"/>
 
-	<node pkg="basic_node" name="basic" type="basicNode" output="screen" />
-
 	<!-- odom -->
 	<group unless="$(arg gazebo)">
 		<include file="$(find F11Robo)/launch/odom.launch">
