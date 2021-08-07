@@ -74,8 +74,22 @@ roslaunch F11Robo navigation.launch
 ```bash
 roslaunch F11Robo navigation.launch map_file:=$HOME/map.yaml
 ```
+gazeboで動かす場合
+```bash
+roslaunch F11Robo navigation_gazebo.launch
+```
 navigation実行時のノード図
 ![node](/image/rosgraph.png)
+# Path Planning & Path Following
+自作のナビゲーションノードで
+Path PlanningのアルゴリズムにはA*、Path FollowingのアルゴリズムにはPurePursuitを使用した
+```bash
+roslaunch F11Robo navi.launch map_file:=$HOME/map.yaml
+```
+gazeboで動かす場合
+```bash
+roslaunch F11Robo navi.launch gazebo:=true map_file:=$HOME/map_world1.yaml
+```
 # Goal generator
 navigationを起動後以下のコマンドを実行する
 ```bash
