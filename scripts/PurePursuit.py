@@ -26,7 +26,7 @@ class Simple_path_follower():
         self.r = rospy.Rate(50)  # 50hz
 
         self.target_speed = 1.0             #target speed [km/h]
-        self.target_LookahedDist = 0.1      #Lookahed distance for Pure Pursuit[m]
+        self.target_LookahedDist = 0.3      #Lookahed distance for Pure Pursuit[m]
 
         #first flg (for subscribe global path topic)
         self.path_first_flg = False
@@ -43,6 +43,11 @@ class Simple_path_follower():
         self.path_sub = rospy.Subscriber("/path", Path, self.cb_get_path_topic_subscriber)
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
+
+        self.cflag=False
+        self.target_yaw=0
+        self.target_lookahed_x=0
+        self.target_lookahed_y=0
 
 
 
@@ -121,13 +126,18 @@ class Simple_path_follower():
             for indx in range (self.last_indx,self.path_x_np.shape[0]):
                 dist_sp_from_nearest = self.path_st_np[indx] - self.path_st_np[self.last_indx]
                 if (dist_sp_from_nearest) > self.target_LookahedDist:
-                    target_lookahed_x = self.path_x_np[indx]
-                    target_lookahed_y = self.path_y_np[indx]
+                    self.target_lookahed_x = self.path_x_np[indx]
+                    self.target_lookahed_y = self.path_y_np[indx]
+                    self.cflag=True
                     break
-
+            target_lookahed_x=self.target_lookahed_x
+            target_lookahed_y=self.target_lookahed_y
             #calculate target yaw rate
-            target_yaw = math.atan2(target_lookahed_y-self.current_y,target_lookahed_x-self.current_x)
-
+            if self.cflag:
+                self.target_yaw = math.atan2(target_lookahed_y-self.current_y,target_lookahed_x-self.current_x)
+                self.cflag=False
+            target_yaw=self.target_yaw
+            print "target:",target_lookahed_x,target_lookahed_y,target_yaw
             #check vehicle orientation
             # if target_yaw - self.target_yaw_last < -math.pi:
             #     target_yaw = 2*math.pi + target_yaw
