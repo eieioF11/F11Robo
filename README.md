@@ -46,6 +46,7 @@ rosrun teleop_twist_keyboard teleop_twist_keyboard.py cmd_vel:=/F11Robo/diff_dri
 ```bash
 roslaunch F11Robo gazebo.launch
 ```
+![gazebo](/image/gazebo.png)
 # mapping
 以下のコマンドを入力して実行する
 ```bash
