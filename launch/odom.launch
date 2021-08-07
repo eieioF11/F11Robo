@@ -1,0 +1,22 @@
+<launch>
+	<!-- Arguments -->
+	<arg name="map_file" default="$(find F11Robo)/map/mymap1.yaml"/>
+	<arg name="open_rviz" default="true"/>
+
+	<!-- Map server -->
+	<node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
+
+	<!-- AMCL -->
+	<include file="$(find F11Robo)/launch/amcl.launch"/>
+
+	<!-- Robot model -->
+	<arg name="model" default="$(find F11Robo)/urdf/F11Robo.urdf" />
+	<arg name="gui" default="true" />
+	<param name="robot_description" textfile="$(arg model)" />
+
+	<!-- rviz -->
+	<group if="$(arg open_rviz)"> 
+		<node pkg="rviz" type="rviz" name="rviz" required="true"
+			args="-d $(find F11Robo)/rviz/odom.rviz"/>
+	</group>
+</launch>

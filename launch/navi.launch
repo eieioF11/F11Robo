@@ -1,0 +1,29 @@
+<launch>
+	<!-- Arguments -->
+	<arg name="gazebo" default="false"/>
+	<arg name="map_file" default="$(find F11Robo)/map/mymap1.yaml"/>
+	<arg name="open_rviz" default="true"/>
+
+	<node pkg="basic_node" name="basic" type="basicNode" output="screen" />
+
+	<!-- odom -->
+	<group unless="$(arg gazebo)">
+		<include file="$(find F11Robo)/launch/odom.launch">
+			<arg name="map_file" value="$(arg map_file)" />
+			<arg name="open_rviz" default="$(arg open_rviz)"/>
+		</include>
+	</group>
+	<group if="$(arg gazebo)">
+		<include file="$(find F11Robo)/launch/odom_gazebo.launch">
+			<arg name="map_file" value="$(arg map_file)" />
+			<arg name="open_rviz" default="$(arg open_rviz)"/>
+		</include>
+	</group>
+
+
+	<!-- Path Planner-->
+	<node pkg="F11Robo" type="PathPlanner.py" name="PathPlanner" output="screen"/>
+
+	<!-- Path Follower-->
+	<node pkg="F11Robo" type="PurePursuit.py" name="PurePursuit" output="screen"/>
+</launch>
