@@ -99,7 +99,7 @@ class Simple_path_follower():
             min_indx = dist_from_current_pos_np.argmin()
             nearest_x = self.path_x_np[min_indx]
             nearest_y = self.path_y_np[min_indx]
-            # Get nearest Path point at first time
+            # Get nearest Path point at first time123
             if self.position_search_flg == False:
                 self.pass_flg_np[0:min_indx] = 1    #Set pass flg
                 self.position_search_flg = True

@@ -16,7 +16,6 @@ from geometry_msgs.msg import PoseWithCovarianceStamped, Quaternion
 import tf2_ros
 import matplotlib.pyplot as plt
 
-
 odom=[0,0]
 rgoal=[0,0]
 readgoal=False
@@ -34,7 +33,7 @@ tfBuffer = tf2_ros.Buffer()
 listener = tf2_ros.TransformListener(tfBuffer)
 
 #path generation
-def path_generation(init,sPath,w,h,resolution):
+def path_generation(sPath,w,h,resolution):
 	#Initialize odometry header
 	global path_pub
 	global head
@@ -46,20 +45,13 @@ def path_generation(init,sPath,w,h,resolution):
 	hh=h/2
 	hw=w/2
 
-	temp_pose = PoseStamped()
-	temp_pose.pose.position.x = (init[0]-hh)*resolution
-	temp_pose.pose.position.y = (init[1]-hw)*resolution
-	temp_pose.pose.position.z = 0
-	temp_pose.header = path_header
-	temp_pose.header.seq = 0
-	path.poses.append(temp_pose)
 	for i in range(0,len(sPath)):
 		temp_pose = PoseStamped()
 		temp_pose.pose.position.x = (sPath[i][0]-hh)*resolution
 		temp_pose.pose.position.y = (sPath[i][1]-hw)*resolution
 		temp_pose.pose.position.z = 0
 		temp_pose.header = path_header
-		temp_pose.header.seq = i+1
+		temp_pose.header.seq = i
 		path.poses.append(temp_pose)
 	#print path.poses
 	path.header = path_header
@@ -69,13 +61,56 @@ def path_generation(init,sPath,w,h,resolution):
 
 #path planner
 import a_star
+from scipy.special import comb
+
+def bernstein_poly(i, n, t):
+    """
+     The Bernstein polynomial of n, i as a function of t
+    """
+
+    return comb(n, i) * ( t**(n-i) ) * (1 - t)**i
+
+
+def bezier_curve(points, nTimes=1000):
+    """
+       Given a set of control points, return the
+       bezier curve defined by the control points.
+
+       points should be a list of lists, or list of tuples
+       such as [ [1,1], 
+                 [2,3], 
+                 [4,5], ..[Xn, Yn] ]
+        nTimes is the number of time steps, defaults to 1000
+
+        See http://processingjs.nihongoresources.com/bezierinfo/
+    """
+
+    nPoints = len(points)
+    xPoints = np.array([p[0] for p in points])
+    yPoints = np.array([p[1] for p in points])
+
+    t = np.linspace(0.0, 1.0, nTimes)
+
+    polynomial_array = np.array([ bernstein_poly(i, nPoints-1, t) for i in range(0, nPoints)   ])
+
+    xvals = np.dot(xPoints, polynomial_array)
+    yvals = np.dot(yPoints, polynomial_array)
+
+    return xvals, yvals
 
 def a_star_pathplanner(start,goal,grid):
 	test_planner = a_star.PathPlanner(grid,False)
 	init,path=test_planner.a_star(start,goal)
-	print init
+	path=np.vstack((init,path))#初期位置をpathに追加
+	xvals, yvals = bezier_curve(path, nTimes=1000)
+	cpath=np.flipud(np.array(list(map(list, zip(xvals,yvals)))))#xvalsとyvalsの結合と反転
+	rospy.loginfo('path calculation completed')
 	print path
-	return path ,init
+	print cpath
+	plt.plot(path[:,0],path[:,1])
+	plt.plot(cpath[:,0],cpath[:,1])
+	plt.show()
+	return cpath
 
 #Map
 class Map(object):
@@ -117,21 +152,45 @@ class Map(object):
 						tem[j,i]=255
 					else:
 						tem[j,i]=map[i,j]
-						if map[i,j]==100:
-							grid[j,i]=1
-							#obstacleList=np.vstack((obstacleList, np.array([j,i,0.15])))
+			#cost map
+			for i in range(col):
+				for j in range(row):
+					if tem[i,j]==100:
+						for k in range(8):
+							if tem[i,j-k]==0:
+								tem[i,j-k]=90-k
+							if tem[i,j+k]==0:
+								tem[i,j+k]=90-k
+							if tem[i-k,j]==0:
+								tem[i-k,j]=90-k
+							if tem[i+k,j]==0:
+								tem[i+k,j]=90-k
+
+							if tem[i-k,j-k]==0:
+								tem[i-k,j-k]=90-k
+							if tem[i-k,j+k]==0:
+								tem[i-k,j+k]=90-k
+							if tem[i+k,j-k]==0:
+								tem[i+k,j-k]=90-k
+							if tem[i+k,j+k]==0:
+								tem[i+k,j+k]=90-k
+
+			for i in range(col):
+				for j in range(row):
+					grid[i,j]=0
+					if tem[i,j]>0 and tem[i,j]!=255:
+						grid[i,j]=1
 
 			print map.shape
-			#obstacleList=np.delete(obstacleList, 0, 0)
 
 		except Exception,e:
 			print e
 			rospy.loginfo('convert rgb image error')
 
-		#print obstacleList
+		#plt.imshow(tem)
+		#plt.show()
 		#plt.imshow(grid)
 		#plt.show()
-		#rrt_pathplanner(obstacleList.tolist())
 		global readgoal
 		rospy.loginfo('Map conversion completed')
 		while not rospy.is_shutdown():
@@ -149,9 +208,9 @@ class Map(object):
 				start=[int((odom[1]/mapmsg.info.resolution+(mapmsg.info.height/2))),int((odom[0]/mapmsg.info.resolution+(mapmsg.info.width/2)))]
 				goal=[int((rgoal[1]/mapmsg.info.resolution+(mapmsg.info.height/2))),int((rgoal[0]/mapmsg.info.resolution+(mapmsg.info.width/2)))]
 				#経路計算
-				path,init=a_star_pathplanner(start,goal,grid.tolist())
+				path=a_star_pathplanner(start,goal,grid.tolist())
 				#経路配信
-				path_generation(init,path,mapmsg.info.height,mapmsg.info.width,mapmsg.info.resolution)
+				path_generation(path,mapmsg.info.height,mapmsg.info.width,mapmsg.info.resolution)
 				readgoal=False
 
 	def getImage():
