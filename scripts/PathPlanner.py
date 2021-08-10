@@ -33,7 +33,7 @@ tfBuffer = tf2_ros.Buffer()
 listener = tf2_ros.TransformListener(tfBuffer)
 
 #path generation
-def path_generation(sPath,w,h,resolution):
+def path_generation(sPath,ox,oy,resolution):
 	#Initialize odometry header
 	global path_pub
 	global head
@@ -42,13 +42,11 @@ def path_generation(sPath,w,h,resolution):
 	path_header.seq = 0
 	path_header.stamp = rospy.Time.now()
 	path_header.frame_id = "map"
-	hh=h/2
-	hw=w/2
 
 	for i in range(0,len(sPath)):
 		temp_pose = PoseStamped()
-		temp_pose.pose.position.x = (sPath[i][0]-hh)*resolution
-		temp_pose.pose.position.y = (sPath[i][1]-hw)*resolution
+		temp_pose.pose.position.x = (sPath[i][0]-ox)*resolution
+		temp_pose.pose.position.y = (sPath[i][1]-oy)*resolution
 		temp_pose.pose.position.z = 0
 		temp_pose.header = path_header
 		temp_pose.header.seq = i
@@ -107,9 +105,9 @@ def a_star_pathplanner(start,goal,grid):
 	rospy.loginfo('path calculation completed')
 	print path
 	print cpath
-	plt.plot(path[:,0],path[:,1])
-	plt.plot(cpath[:,0],cpath[:,1])
-	plt.show()
+	#plt.plot(path[:,1],path[:,0])
+	#plt.plot(cpath[:,1],cpath[:,0],color = "red")
+	#plt.show()
 	return cpath
 
 #Map
@@ -131,23 +129,22 @@ class Map(object):
 			#Mainly want to get data, here is stored map information
 			map = mapmsg.data
 			# Below is the tuple type
-			print type(map)
+			#print type(map)
 			#Change to numpy format that can draw pictures
 			map = np.array(map)
 			#The following output is (368466,), obviously can not draw
-			print map.shape
+			#print map.shape
 			#Need to reshape, factor the above numbers online, then calculate the two largest factors
 			#So it's probably like this:
 			map = map.reshape((mapmsg.info.height,mapmsg.info.width))
-			print map
+			#print map
 			#You can see that most of the values ​​are -1, so you need to regularize the values
 			row,col = map.shape
-			print row,col
+			#print row,col
 			tem = np.zeros((row,col))
 			grid = np.zeros((row,col))
 			for i in range(row):
 				for j in range(col):
-					grid[j,i]=0
 					if(map[i,j]==-1):
 						tem[j,i]=255
 					else:
@@ -156,7 +153,7 @@ class Map(object):
 			for i in range(col):
 				for j in range(row):
 					if tem[i,j]==100:
-						for k in range(8):
+						for k in range(5):
 							if tem[i,j-k]==0:
 								tem[i,j-k]=90-k
 							if tem[i,j+k]==0:
@@ -181,14 +178,20 @@ class Map(object):
 					if tem[i,j]>0 and tem[i,j]!=255:
 						grid[i,j]=1
 
-			print map.shape
+			#print map.shape
 
+			print "resol",mapmsg.info.resolution,"h",mapmsg.info.height,"w",mapmsg.info.width
+			print "orizin x:",mapmsg.info.origin.position.x,"y:",mapmsg.info.origin.position.y
+			ox=mapmsg.info.origin.position.x
+			oy=mapmsg.info.origin.position.y
+			index_ox=int(-1*ox/mapmsg.info.resolution)
+			index_oy=int(-1*oy/mapmsg.info.resolution)
 		except Exception,e:
 			print e
 			rospy.loginfo('convert rgb image error')
-
-		#plt.imshow(tem)
-		#plt.show()
+		tem[int(-1*ox/mapmsg.info.resolution),int(-1*oy/mapmsg.info.resolution)]=-255
+		plt.imshow(tem)
+		plt.show()
 		#plt.imshow(grid)
 		#plt.show()
 		global readgoal
@@ -205,12 +208,12 @@ class Map(object):
 					rospy.loginfo(e)
 				print "start",odom,"goal",rgoal
 				#座標変換
-				start=[int((odom[1]/mapmsg.info.resolution+(mapmsg.info.height/2))),int((odom[0]/mapmsg.info.resolution+(mapmsg.info.width/2)))]
-				goal=[int((rgoal[1]/mapmsg.info.resolution+(mapmsg.info.height/2))),int((rgoal[0]/mapmsg.info.resolution+(mapmsg.info.width/2)))]
+				start=[int((odom[1]/mapmsg.info.resolution+index_ox)),int((odom[0]/mapmsg.info.resolution+index_oy))]
+				goal=[int((rgoal[1]/mapmsg.info.resolution+index_ox)),int((rgoal[0]/mapmsg.info.resolution+index_oy))]
 				#経路計算
 				path=a_star_pathplanner(start,goal,grid.tolist())
 				#経路配信
-				path_generation(path,mapmsg.info.height,mapmsg.info.width,mapmsg.info.resolution)
+				path_generation(path,index_ox,index_oy,mapmsg.info.resolution)
 				readgoal=False
 
 	def getImage():
