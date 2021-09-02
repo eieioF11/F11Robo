@@ -27,8 +27,9 @@ class Simple_path_follower():
         rospy.init_node('Simple_Path_Follower', anonymous=True)
         self.r = rospy.Rate(50)  # 50hz
 
-        self.target_speed = 1.0             #target speed [km/h]
-        self.target_LookahedDist = 0.4      #Lookahed distance for Pure Pursuit[m]
+        self.target_speed_max = 1.0            #target speed [km/h]
+        self.target_speed_min = 0.01
+        self.target_LookahedDist = 0.5      #Lookahed distance for Pure Pursuit[m]
 
         #first flg (for subscribe global path topic)
         self.path_first_flg = False
@@ -108,6 +109,7 @@ class Simple_path_follower():
     ###################
     def update_cmd_vel(self):
         self.cb_get_odometry()
+        speed=0
         if self.path_first_flg == True and self.odom_first_flg == True:
 
             dist_from_current_pos_np = np.sqrt(np.power((self.path_x_np-self.current_x),2) + np.power((self.path_y_np-self.current_y),2))
@@ -140,11 +142,12 @@ class Simple_path_follower():
             target_lookahed_y = nearest_y
             for indx in range (self.last_indx,self.path_x_np.shape[0]):
                 dist_sp_from_nearest = self.path_st_np[indx] - self.path_st_np[self.last_indx]
-                tld=math.fabs(self.target_LookahedDist-self.map(self.curvature_val[indx],0,np.amax(self.curvature_val),0,self.target_LookahedDist-0.1))
+                tld=math.fabs(self.target_LookahedDist-self.map(self.curvature_val[indx],0,np.amax(self.curvature_val),0,self.target_LookahedDist-0.01))
+                speed=math.fabs(self.target_LookahedDist-self.map(self.curvature_val[indx],0,np.amax(self.curvature_val),self.target_speed_min/3.6,self.target_speed_max/3.6))
                 if tld>=self.target_LookahedDist:
                     tld=self.target_LookahedDist
                 if (dist_sp_from_nearest) > tld:
-                    print self.target_LookahedDist,"tld:",tld
+                    print self.target_LookahedDist,"tld:",tld,"curv:",self.curvature_val[indx]
                     self.target_lookahed_x = self.path_x_np[indx]
                     self.target_lookahed_y = self.path_y_np[indx]
                     self.cflag=True
@@ -165,13 +168,19 @@ class Simple_path_follower():
 
             yaw_diff = target_yaw - self.current_yaw_euler
 
+            #if yaw_diff > math.pi:
+            #    yaw_diff = yaw_diff % math.pi
+            #elif yaw_diff < -math.pi:
+            #    yaw_diff = yaw_diff%(-math.pi)
+
             if yaw_diff > math.pi:
-                yaw_diff = yaw_diff % math.pi
+                yaw_diff = -2*math.pi+yaw_diff
             elif yaw_diff < -math.pi:
-                yaw_diff = yaw_diff%(-math.pi)
+                yaw_diff = 2*math.pi+yaw_diff
 
 
-            sample_sec = dist_sp_from_nearest/(self.target_speed/3.6)
+
+            sample_sec = dist_sp_from_nearest/(speed)
             if sample_sec != 0.0:
                 yaw_rate = math.fabs(yaw_diff)/sample_sec
             else:
@@ -186,11 +195,15 @@ class Simple_path_follower():
                     yaw_rate = yaw_rate * (-1.0)
 
             #Set Cmdvel
-            speed=0
-            if self.first and math.fabs(yaw_diff)<(math.pi/20):
+            if self.first and math.fabs(yaw_diff)<(math.pi/60):
                 self.first=False
             elif not self.first:
-                speed=self.target_speed/3.6
+                if speed>(self.target_speed_max/3.6):
+                    speed=self.target_speed_max/3.6
+                elif speed<(self.target_speed_min/3.6):
+                    speed=self.target_speed_min/3.6
+            else:
+                speed=0
 
             cmd_vel = Twist()
             cmd_vel.linear.x = speed    #[m/s]
