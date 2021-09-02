@@ -59,6 +59,10 @@ class Simple_path_follower():
         self.target_lookahed_x=0
         self.target_lookahed_y=0
 
+        self.oldspeed=0
+        self.dist=0
+        self.gflag=False
+
     def map(self,x,in_min,in_max,out_min,out_max):
         value=(x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
         if value>out_max:
@@ -130,7 +134,7 @@ class Simple_path_follower():
             self.last_indx = min_indx
 
             #check goal
-            if self.pass_flg_np[self.path_x_np.shape[0]-1] == 1:
+            if self.pass_flg_np[self.path_x_np.shape[0]-1] == 1 or self.gflag:
                 cmd_vel = Twist()
                 self.cmdvel_pub.publish(cmd_vel)
                 self.path_first_flg = False
@@ -157,7 +161,13 @@ class Simple_path_follower():
             #calculate target yaw rate
             if self.cflag:
                 self.target_yaw = math.atan2(target_lookahed_y-self.current_y,target_lookahed_x-self.current_x)
+                self.oldspeed=speed
                 self.cflag=False
+            else:
+                self.dist=math.sqrt((self.target_lookahed_x-self.current_x)**2+(self.target_lookahed_y-self.current_y)**2)
+                speed=self.map(self.dist,0,self.target_LookahedDist,self.target_speed_min/3.6,self.oldspeed)
+                if self.dist < 0.1:
+                    self.gflag=True
             target_yaw=self.target_yaw
 
             #check vehicle orientation
@@ -214,7 +224,7 @@ class Simple_path_follower():
             cmd_vel.angular.z = yaw_rate
             self.cmdvel_pub.publish(cmd_vel)
 
-            print(self.first,yaw_diff*180/math.pi,target_yaw*180/math.pi,self.current_yaw_euler*180/math.pi,"yaw_rate:",yaw_rate,"Vx:",speed)
+            print(self.first,yaw_diff*180/math.pi,target_yaw*180/math.pi,self.current_yaw_euler*180/math.pi,"yaw_rate:",yaw_rate,"Vx:",speed,"dist:",self.dist)
 
             #publish maker
             self.publish_lookahed_marker(target_lookahed_x,target_lookahed_y,target_yaw)
@@ -281,6 +291,7 @@ class Simple_path_follower():
             plt.plot(self.curvature_val)
             plt.show()
             self.first = self.path_first_flg = True
+            self.gflag=False
             rospy.loginfo("get path")
 
 if __name__ == '__main__':
