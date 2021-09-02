@@ -9,11 +9,11 @@
 		<arg name="gui" value="true"/>
 		<arg name="headless" value="false"/>
 		<arg name="debug" value="false"/>
+		<arg name="world_name" value="$(find F11Robo_CG)/world/world_CG.world"/>
 	</include>
 
 	<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model F11Robo" />
 
-	<param name="/F11Robo/diff_drive_controller/enable_odom_tf" value="true" />
 	<rosparam command="load" file="$(find F11Robo)/param/diff_drive_controller.yaml" ns="/F11Robo" />
 	<rosparam command="load"  file="$(find F11Robo)/param/joint_state_controller.yaml" ns="/F11Robo"/>
 
@@ -21,4 +21,12 @@
 		args="diff_drive_controller  joint_state_controller" />
 
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen" ns="/F11Robo"/>
+
+    <!-- robot localization -->
+    <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true" output="screen">
+        <rosparam command="load" file="$(find F11Robo)/param/EKF_params.yaml" />
+        <remap from="/odometry/filtered" to="fusion/odom" />
+        <remap from="odom0" to="F11Robo/diff_drive_controller/odom" />
+        <remap from="imu0"  to="imu/data" />
+    </node>
 </launch>

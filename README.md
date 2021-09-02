@@ -89,7 +89,7 @@ roslaunch F11Robo navi.launch map_file:=$HOME/map.yaml
 ```
 gazeboで動かす場合
 ```bash
-roslaunch F11Robo navi.launch gazebo:=true map_file:=$HOME/map_world1.yaml
+roslaunch F11Robo navi.launch gazebo:=true
 ```
 # Goal generator
 navigationを起動後以下のコマンドを実行する

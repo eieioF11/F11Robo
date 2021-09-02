@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <robot name="F11Robot" xmlns:xacro="http://ros.org/wiki/xacro">
 	<xacro:include filename="$(find F11Robo)/xacro/lidar.xacro" />
+	<xacro:include filename="$(find F11Robo_CG)/xacro/imu.xacro" />
 
 	<material name="gray">
 		<color rgba="0.7 0.7 0.7 2.5"/>
@@ -133,6 +134,7 @@
 	<xacro:ball_macro prefix="right_ball" xyz="-0.155 -0.0755 0.005"/>
 
 	<xacro:laser_macro prefix="laser" parent="base_link" xyz="0.05 0 0.078"/>
+	<xacro:imu_macro prefix="imu" parent="base_link" xyz="-0.152 0 0.05"/>
 
 	<gazebo>
 		<plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">

@@ -12,6 +12,8 @@ from std_msgs.msg import Header
 from visualization_msgs.msg import Marker
 from nav_msgs.msg import Path, Odometry
 
+import matplotlib.pyplot as plt
+
 #######################################
 # Simple Path follower (Pure Pursuit) #
 #######################################
@@ -26,7 +28,7 @@ class Simple_path_follower():
         self.r = rospy.Rate(50)  # 50hz
 
         self.target_speed = 1.0             #target speed [km/h]
-        self.target_LookahedDist = 0.3      #Lookahed distance for Pure Pursuit[m]
+        self.target_LookahedDist = 0.4      #Lookahed distance for Pure Pursuit[m]
 
         #first flg (for subscribe global path topic)
         self.path_first_flg = False
@@ -44,12 +46,25 @@ class Simple_path_follower():
         self.tfBuffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.tfBuffer)
 
+        #走行経路のパスを配信
+        self.path = Path()
+        #self.odom_sub = rospy.Subscriber('/odom', Odometry, self.odom_cb)
+        #self.odom_sub = rospy.Subscriber('/F11Robo/diff_drive_controller/odom', Odometry, self.odom_cb)
+        self.odom_sub = rospy.Subscriber('/fusion/odom', Odometry, self.odom_cb)
+        self.path_pub = rospy.Publisher('/path_hist', Path, queue_size=10)
+
         self.cflag=False
         self.target_yaw=0
         self.target_lookahed_x=0
         self.target_lookahed_y=0
 
-
+    def map(self,x,in_min,in_max,out_min,out_max):
+        value=(x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+        if value>out_max:
+            value=out_max
+        if value<out_min:
+            value=out_min
+        return value
 
     def publish_lookahed_marker(self,x,y,yaw_euler):
 
@@ -87,7 +102,7 @@ class Simple_path_follower():
 
         self.lookahed_pub.publish(marker_data)
 
-
+ 
     ###################
     # Update cmd_vel  #
     ###################
@@ -125,7 +140,11 @@ class Simple_path_follower():
             target_lookahed_y = nearest_y
             for indx in range (self.last_indx,self.path_x_np.shape[0]):
                 dist_sp_from_nearest = self.path_st_np[indx] - self.path_st_np[self.last_indx]
-                if (dist_sp_from_nearest) > self.target_LookahedDist:
+                tld=math.fabs(self.target_LookahedDist-self.map(self.curvature_val[indx],0,np.amax(self.curvature_val),0,self.target_LookahedDist-0.1))
+                if tld>=self.target_LookahedDist:
+                    tld=self.target_LookahedDist
+                if (dist_sp_from_nearest) > tld:
+                    print self.target_LookahedDist,"tld:",tld
                     self.target_lookahed_x = self.path_x_np[indx]
                     self.target_lookahed_y = self.path_y_np[indx]
                     self.cflag=True
@@ -166,17 +185,23 @@ class Simple_path_follower():
                 if (target_yaw) > (self.current_yaw_euler):
                     yaw_rate = yaw_rate * (-1.0)
 
-            print(yaw_diff*180/math.pi,target_yaw*180/math.pi,self.current_yaw_euler*180/math.pi)
-
             #Set Cmdvel
+            speed=0
+            if self.first and math.fabs(yaw_diff)<(math.pi/20):
+                self.first=False
+            elif not self.first:
+                speed=self.target_speed/3.6
+
             cmd_vel = Twist()
-            cmd_vel.linear.x = self.target_speed/3.6    #[m/s]
+            cmd_vel.linear.x = speed    #[m/s]
             cmd_vel.linear.y = 0.0
             cmd_vel.linear.z = 0.0
             cmd_vel.angular.x = 0.0
             cmd_vel.angular.y = 0.0
             cmd_vel.angular.z = yaw_rate
             self.cmdvel_pub.publish(cmd_vel)
+
+            print(self.first,yaw_diff*180/math.pi,target_yaw*180/math.pi,self.current_yaw_euler*180/math.pi,"yaw_rate:",yaw_rate,"Vx:",speed)
 
             #publish maker
             self.publish_lookahed_marker(target_lookahed_x,target_lookahed_y,target_yaw)
@@ -188,6 +213,18 @@ class Simple_path_follower():
     ####################################
     # Callback for receiving Odometry  #
     ####################################
+
+    def odom_cb(self,data):
+        if self.path_first_flg:
+            self.path.header = data.header
+            pose = PoseStamped()
+            pose.header = data.header
+            pose.pose = data.pose.pose
+            self.path.poses.append(pose)
+            self.path_pub.publish(self.path)
+        else:
+            self.path = Path()
+
     def cb_get_odometry(self):
         try:
             t = self.tfBuffer.lookup_transform('map', 'base_link', rospy.Time())
@@ -221,7 +258,16 @@ class Simple_path_follower():
                 last_x = self.path_x_np[indx]
                 last_y = self.path_y_np[indx]
                 last_st = self.path_st_np[indx]
-            self.path_first_flg = True
+            #曲率計算
+            x_t = np.gradient(self.path_x_np)
+            y_t = np.gradient(self.path_y_np)
+            xx_t = np.gradient(x_t)
+            yy_t = np.gradient(y_t)
+            self.curvature_val = np.abs(xx_t * y_t - x_t * yy_t) / (x_t * x_t + y_t * y_t)**1.5
+            print self.curvature_val
+            plt.plot(self.curvature_val)
+            plt.show()
+            self.first = self.path_first_flg = True
             rospy.loginfo("get path")
 
 if __name__ == '__main__':
