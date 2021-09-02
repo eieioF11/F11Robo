@@ -33,7 +33,7 @@ tfBuffer = tf2_ros.Buffer()
 listener = tf2_ros.TransformListener(tfBuffer)
 
 #path generation
-def path_generation(sPath,ox,oy,resolution):
+def path_generation(sPath,ox,oy,resolution):#ROSにpath形式のデータを配信
 	#Initialize odometry header
 	global path_pub
 	global head
@@ -100,14 +100,16 @@ def a_star_pathplanner(start,goal,grid):
 	test_planner = a_star.PathPlanner(grid,False)
 	init,path=test_planner.a_star(start,goal)
 	path=np.vstack((init,path))#初期位置をpathに追加
-	xvals, yvals = bezier_curve(path, nTimes=1000)
+	xvals, yvals = bezier_curve(path, nTimes=1000)#ベジェ曲線で経路を滑らかにする
 	cpath=np.flipud(np.array(list(map(list, zip(xvals,yvals)))))#xvalsとyvalsの結合と反転
 	rospy.loginfo('path calculation completed')
+	#結果表示
 	print path
 	print cpath
-	#plt.plot(path[:,1],path[:,0])
-	#plt.plot(cpath[:,1],cpath[:,0],color = "red")
-	#plt.show()
+	plt.imshow(grid)
+	plt.plot(path[:,1],path[:,0])
+	plt.plot(cpath[:,1],cpath[:,0],color = "red")
+	plt.show()
 	return cpath
 
 #Map
@@ -129,18 +131,14 @@ class Map(object):
 			#Mainly want to get data, here is stored map information
 			map = mapmsg.data
 			# Below is the tuple type
-			#print type(map)
 			#Change to numpy format that can draw pictures
 			map = np.array(map)
 			#The following output is (368466,), obviously can not draw
-			#print map.shape
 			#Need to reshape, factor the above numbers online, then calculate the two largest factors
 			#So it's probably like this:
 			map = map.reshape((mapmsg.info.height,mapmsg.info.width))
-			#print map
 			#You can see that most of the values ​​are -1, so you need to regularize the values
 			row,col = map.shape
-			#print row,col
 			tem = np.zeros((row,col))
 			grid = np.zeros((row,col))
 			for i in range(row):
@@ -149,36 +147,24 @@ class Map(object):
 						tem[j,i]=255
 					else:
 						tem[j,i]=map[i,j]
-			#cost map
+			#cost map作成
+			n=10
+			rn=3+2*(n-1)
+			print rn
 			for i in range(col):
 				for j in range(row):
 					if tem[i,j]==100:
-						for k in range(5):
-							if tem[i,j-k]==0:
-								tem[i,j-k]=90-k
-							if tem[i,j+k]==0:
-								tem[i,j+k]=90-k
-							if tem[i-k,j]==0:
-								tem[i-k,j]=90-k
-							if tem[i+k,j]==0:
-								tem[i+k,j]=90-k
-
-							if tem[i-k,j-k]==0:
-								tem[i-k,j-k]=90-k
-							if tem[i-k,j+k]==0:
-								tem[i-k,j+k]=90-k
-							if tem[i+k,j-k]==0:
-								tem[i+k,j-k]=90-k
-							if tem[i+k,j+k]==0:
-								tem[i+k,j+k]=90-k
-
+						for k in range(rn):
+							for l in range(rn):
+								val=tem[i-n+k,j-n+l]
+								if val==0:
+									tem[i-n+k,j-n+l]=200
+			#経路計算用のマップ作成
 			for i in range(col):
 				for j in range(row):
 					grid[i,j]=0
 					if tem[i,j]>0 and tem[i,j]!=255:
 						grid[i,j]=1
-
-			#print map.shape
 
 			print "resol",mapmsg.info.resolution,"h",mapmsg.info.height,"w",mapmsg.info.width
 			print "orizin x:",mapmsg.info.origin.position.x,"y:",mapmsg.info.origin.position.y
@@ -192,8 +178,6 @@ class Map(object):
 		tem[int(-1*ox/mapmsg.info.resolution),int(-1*oy/mapmsg.info.resolution)]=-255
 		plt.imshow(tem)
 		plt.show()
-		#plt.imshow(grid)
-		#plt.show()
 		global readgoal
 		rospy.loginfo('Map conversion completed')
 		while not rospy.is_shutdown():
@@ -210,10 +194,27 @@ class Map(object):
 				#座標変換
 				start=[int((odom[1]/mapmsg.info.resolution+index_ox)),int((odom[0]/mapmsg.info.resolution+index_oy))]
 				goal=[int((rgoal[1]/mapmsg.info.resolution+index_ox)),int((rgoal[0]/mapmsg.info.resolution+index_oy))]
-				#経路計算
-				path=a_star_pathplanner(start,goal,grid.tolist())
-				#経路配信
-				path_generation(path,index_ox,index_oy,mapmsg.info.resolution)
+				if not grid[goal[1],goal[0]] and not grid[start[1],start[0]]:
+					#経路計算
+					path=a_star_pathplanner(start,goal,grid.tolist())
+					#経路配信
+					path_generation(path,index_ox,index_oy,mapmsg.info.resolution)
+				else:
+					#Error
+					if grid[goal[1],goal[0]]:
+						plt.text(-3,-3, "Unreachable goal",color="red")
+						rospy.logerr('Unreachable goal')
+						grid[goal[1],goal[0]]=2
+						plt.imshow(grid)
+						plt.show()
+						grid[goal[1],goal[0]]=1
+					if grid[start[1],start[0]]:
+						plt.text(-3,-3, "Unreachable start",color="red")
+						rospy.logerr('Unreachable start')
+						grid[start[1],start[0]]=2
+						plt.imshow(grid)
+						plt.show()
+						grid[start[1],start[0]]=1
 				readgoal=False
 
 	def getImage():

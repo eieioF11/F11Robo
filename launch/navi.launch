@@ -1,7 +1,7 @@
 <launch>
 	<!-- Arguments -->
 	<arg name="gazebo" default="false"/>
-	<arg name="map_file" default="$(find F11Robo)/map/mymap1.yaml"/>
+	<arg name="map_file" default="$(find F11Robo)/map/map_world_CG.yaml"/>
 	<arg name="open_rviz" default="true"/>
 
 	<!-- odom -->
@@ -22,6 +22,6 @@
 	<!-- Path Planner-->
 	<node pkg="F11Robo" type="PathPlanner.py" name="PathPlanner" output="screen"/>
 
-	<!-- Path Follower-->
+	<!-- Path Follower -->
 	<node pkg="F11Robo" type="PurePursuit.py" name="PurePursuit" output="screen"/>
 </launch>

@@ -18,7 +18,6 @@
 	<include file="$(find F11Robo)/launch/move_base.launch">
 		<arg name="move_forward_only" value="$(arg move_forward_only)"/>
 		<arg name="cmd_vel_topic" value="$(arg cmd_vel_topic)"/>
-		<arg name="gazebo" value="true"/>
 	</include>
 
 	<!-- rviz -->
