@@ -9,7 +9,7 @@
 		<arg name="gui" value="true"/>
 		<arg name="headless" value="false"/>
 		<arg name="debug" value="false"/>
-		<arg name="world_name" value="$(find F11Robo_CG)/world/world_CG.world"/>
+		<arg name="world_name" value="$(find F11Robo)/world/world_CG.world"/>
 	</include>
 
 	<node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model F11Robo" />
