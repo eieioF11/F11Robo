@@ -2,6 +2,9 @@
 対向二輪ロボットを動作させるROSアプリケーション用リポジトリ\
 [対向二輪ロボット情報と基板のファーム](https://github.com/eieioF11/ESP32)
 # 環境構築
+ubuntuバージョン: 18.04\
+ROSバージョン: melodic\
+[ROSインストール参考サイト](https://qiita.com/applepieqiita/items/4cd57e337d8756c8db44)
 ## キーボード操作
 ```bash
 sudo apt-get install ros-melodic-teleop-twist-keyboard
@@ -23,6 +26,16 @@ git clone -b ros1 https://github.com/ros-planning/navigation_msgs.git
 git clone -b melodic-devel https://github.com/ros/geometry2.git
 cd ~/catkin_ws
 catkin_make
+```
+## robot_localization
+[ドキュメント](http://docs.ros.org/en/kinetic/api/robot_localization/html/index.html)
+```bash
+sudo apt-get install -y ros-melodic-robot-localization
+```
+## jsk visualization
+[ドキュメント](https://jsk-visualization.readthedocs.io/en/latest/)
+```bash
+sudo apt-get install -y ros-melodic-jsk-visualization
 ```
 # ロボット側のノード
 ロボット側ではないPCでroscoreを実行したあと以下のコマンドを実行する
