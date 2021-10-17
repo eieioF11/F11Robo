@@ -24,4 +24,11 @@
 
 	<!-- Path Follower -->
 	<node pkg="F11Robo" type="PurePursuit.py" name="PurePursuit" output="screen"/>
+
+	<node pkg="jsk_rviz_plugins"
+			type="rosconsole_overlay_text.py"
+			respawn="true"
+			name="rosconsole_overlay_text">
+		<param name="reverse_lines" value="true"/>
+	</node>
 </launch>

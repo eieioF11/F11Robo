@@ -12,7 +12,10 @@ from std_msgs.msg import Header
 from visualization_msgs.msg import Marker
 from nav_msgs.msg import Path, Odometry
 
-import matplotlib.pyplot as plt
+from jsk_rviz_plugins.msg import *
+from std_msgs.msg import ColorRGBA, Float32
+
+#import matplotlib.pyplot as plt
 
 #######################################
 # Simple Path follower (Pure Pursuit) #
@@ -41,6 +44,9 @@ class Simple_path_follower():
         #self.cmdvel_pub = rospy.Publisher("/cmd_vel", Twist, queue_size=50)#実機使用時
         self.cmdvel_pub = rospy.Publisher("/F11Robo/diff_drive_controller/cmd_vel", Twist, queue_size=50)#シュミレーター使用時
         self.lookahed_pub = rospy.Publisher("/lookahed_marker", Marker, queue_size=50)
+        self.value_pub1 = rospy.Publisher("CMD_Vx", Float32, queue_size=1)
+        self.value_pub2 = rospy.Publisher("CMD_Az", Float32, queue_size=1)
+        self.value_pub3 = rospy.Publisher("Curvature_val", Float32, queue_size=1)
 
         #initialize subscriber
         self.path_sub = rospy.Subscriber("/path", Path, self.cb_get_path_topic_subscriber)
@@ -141,6 +147,7 @@ class Simple_path_follower():
                 rospy.loginfo("goal!!")
                 return
             #calculate target point
+            nowCV=0
             dist_sp_from_nearest = 0.0
             target_lookahed_x = nearest_x
             target_lookahed_y = nearest_y
@@ -148,6 +155,7 @@ class Simple_path_follower():
                 dist_sp_from_nearest = self.path_st_np[indx] - self.path_st_np[self.last_indx]
                 tld=math.fabs(self.target_LookahedDist-self.map(self.curvature_val[indx],0,np.amax(self.curvature_val),0,self.target_LookahedDist-0.01))
                 speed=math.fabs(self.target_LookahedDist-self.map(self.curvature_val[indx],0,np.amax(self.curvature_val),self.target_speed_min/3.6,self.target_speed_max/3.6))
+                nowCV=self.curvature_val[indx]#debug
                 if tld>=self.target_LookahedDist:
                     tld=self.target_LookahedDist
                 if (dist_sp_from_nearest) > tld:
@@ -224,7 +232,12 @@ class Simple_path_follower():
             cmd_vel.angular.z = yaw_rate
             self.cmdvel_pub.publish(cmd_vel)
 
-            print(self.first,yaw_diff*180/math.pi,target_yaw*180/math.pi,self.current_yaw_euler*180/math.pi,"yaw_rate:",yaw_rate,"Vx:",speed,"dist:",self.dist)
+            #debug
+            self.value_pub1.publish(speed)
+            self.value_pub2.publish(yaw_rate)
+            self.value_pub3.publish(nowCV)
+
+            rospy.loginfo(str(self.first)+","+str(yaw_diff*180/math.pi)+","+str(target_yaw*180/math.pi)+","+str(self.current_yaw_euler*180/math.pi)+",yaw_rate:"+str(yaw_rate)+",Vx:"+str(speed)+","+"dist:"+str(self.dist))
 
             #publish maker
             self.publish_lookahed_marker(target_lookahed_x,target_lookahed_y,target_yaw)
@@ -288,8 +301,8 @@ class Simple_path_follower():
             yy_t = np.gradient(y_t)
             self.curvature_val = np.abs(xx_t * y_t - x_t * yy_t) / (x_t * x_t + y_t * y_t)**1.5
             print self.curvature_val
-            plt.plot(self.curvature_val)
-            plt.show()
+            #plt.plot(self.curvature_val)
+            #plt.show()
             self.first = self.path_first_flg = True
             self.gflag=False
             rospy.loginfo("get path")
