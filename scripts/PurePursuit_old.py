@@ -70,8 +70,6 @@ class Simple_path_follower():
         self.gflag=False
         self.cur_diff=0.0
         self.nowCV=0
-        self.maxCV=0
-        self.minCV=0
         self.tld=[]
 
     def map(self,x,in_min,in_max,out_min,out_max):
@@ -128,36 +126,55 @@ class Simple_path_follower():
         yaw_rate = 0.0
         if self.path_first_flg == True and self.odom_first_flg == True:
 
-            #Target point calculation
             dist_from_current_pos_np = np.sqrt(np.power((self.path_x_np-self.current_x),2) + np.power((self.path_y_np-self.current_y),2))
-            #print(len(dist_from_current_pos_np),len(self.tld),len(self.curvature_val))
-            #print("dist:",dist_from_current_pos_np)
-            for i in range(len(self.tld)):
-                print (i,dist_from_current_pos_np[i])
-                dist_sp_from_nearest=self.tld[i]
-                self.nowCV=self.curvature_val[i]
-                speed=math.fabs(self.target_LookahedDist-self.map(self.nowCV,self.minCV,self.maxCV,self.target_speed_min/3.6,self.target_speed_max/3.6))
-                if (dist_from_current_pos_np[i]) > self.tld[i]:
-                    #print ("dist:",dist_from_current_pos_np[i])
-                    self.target_lookahed_x = self.path_x_np[i]
-                    self.target_lookahed_y = self.path_y_np[i]
-                    self.path_x_np=self.path_x_np[i:len(self.path_x_np)]
-                    self.path_y_np=self.path_y_np[i:len(self.path_y_np)]
-                    self.tld=self.tld[i:len(self.tld)]
-                    self.curvature_val=self.curvature_val[i:len(self.curvature_val)]
-                    self.cflag=True
-                    break
-                if self.cflag==False and np.amax(dist_sp_from_nearest)<=0.1:#check goal
-                    self.gflag=True
-            target_lookahed_x=self.target_lookahed_x
-            target_lookahed_y=self.target_lookahed_y
-            #End processing
-            if self.gflag:
+            min_indx = dist_from_current_pos_np.argmin()
+            nearest_x = self.path_x_np[min_indx]
+            nearest_y = self.path_y_np[min_indx]
+            # Get nearest Path point at first time123
+            if self.position_search_flg == False:
+                self.pass_flg_np[0:min_indx] = 1    #Set pass flg
+                self.position_search_flg = True
+            else:
+                # Check pass flg from vehicle position
+                for indx in range (self.last_indx,self.path_x_np.shape[0]):
+                    if dist_from_current_pos_np[indx] < 0.1:
+                        self.pass_flg_np[indx] = 1
+                    else:
+                        break
+            self.last_indx = min_indx
+
+            #check goal
+            if self.pass_flg_np[self.path_x_np.shape[0]-1] == 1 or self.gflag:
                 cmd_vel = Twist()
                 self.cmdvel_pub.publish(cmd_vel)
                 self.path_first_flg = False
                 rospy.loginfo("goal!!")
                 return
+            #calculate target point
+            dist_sp_from_nearest = 0.0
+            dist_sp_from_nearest_N=0.0
+            target_lookahed_x = nearest_x
+            target_lookahed_y = nearest_y
+            for indx in range (self.last_indx,self.path_x_np.shape[0]):
+                dist_sp_from_nearest = self.path_st_np[indx] - self.path_st_np[self.last_indx]
+                #tld=math.fabs(self.target_LookahedDist-self.map(self.nowCV,0,np.amax(self.curvature_val),0,self.target_LookahedDist-0.01))
+                speed=math.fabs(self.target_LookahedDist-self.map(self.nowCV,0,np.amax(self.curvature_val),self.target_speed_min/3.6,self.target_speed_max/3.6))
+                self.nowCV=self.curvature_val[indx]#debug
+                #print(indx,tld,dist_sp_from_nearest_N,dist_sp_from_nearest)
+                if self.cur_diff>=0.7:
+                    speed=math.fabs(self.target_LookahedDist-self.map(self.curvature_val[indx],0,np.amax(self.curvature_val),self.target_speed_min/3.6,self.target_speed_max/3.6))
+                else:
+                    speed=self.target_speed_max/3.6
+                #if tld>=self.target_LookahedDist:
+                #    tld=self.target_LookahedDist
+                if (dist_sp_from_nearest) >= self.tld[indx]:
+                    print "indx",indx,self.target_LookahedDist,"tld:",self.tld[indx],"curv:",self.curvature_val[indx],dist_sp_from_nearest_N,dist_sp_from_nearest
+                    self.target_lookahed_x = self.path_x_np[indx]
+                    self.target_lookahed_y = self.path_y_np[indx]
+                    self.cflag=True
+                    break
+            target_lookahed_x=self.target_lookahed_x
+            target_lookahed_y=self.target_lookahed_y
             #calculate target yaw rate
             if self.cflag:
                 self.target_yaw = math.atan2(target_lookahed_y-self.current_y,target_lookahed_x-self.current_x)
@@ -176,6 +193,7 @@ class Simple_path_follower():
                 yaw_diff = -2*math.pi+yaw_diff
             elif yaw_diff < -math.pi:
                 yaw_diff = 2*math.pi+yaw_diff
+
 
 
             sample_sec = dist_sp_from_nearest/(speed)
@@ -212,7 +230,7 @@ class Simple_path_follower():
             cmd_vel.angular.z = yaw_rate
             self.cmdvel_pub.publish(cmd_vel)
 
-            rospy.loginfo(str(self.first)+","+str(yaw_diff*180/math.pi)+","+str(target_yaw*180/math.pi)+","+str(self.current_yaw_euler*180/math.pi)+",tld size:"+str(len(self.tld))+",dist:"+str(self.dist))
+            #rospy.loginfo(str(self.first)+","+str(yaw_diff*180/math.pi)+","+str(target_yaw*180/math.pi)+","+str(self.current_yaw_euler*180/math.pi)+",yaw_rate:"+str(yaw_rate)+",Vx:"+str(speed)+","+"dist:"+str(self.dist))
 
             #publish maker
             self.publish_lookahed_marker(target_lookahed_x,target_lookahed_y,target_yaw)
@@ -284,14 +302,12 @@ class Simple_path_follower():
             #plt.show()
             self.tld=[]
             for i in self.curvature_val:
-                self.tld.append(math.fabs(self.target_LookahedDist-self.map(i,0,np.amax(self.curvature_val),0,self.target_LookahedDist-0.2)))
+                self.tld.append(math.fabs(self.target_LookahedDist-self.map(i,0,np.amax(self.curvature_val),0,self.target_LookahedDist-0.01)))
             #plt.plot(self.path_st_np)
             plt.plot(self.curvature_val)
             plt.plot(self.tld)
             plt.show()
             self.cur_diff=np.amax(self.curvature_val)-np.amin(self.curvature_val)#曲率最大最小の差
-            self.maxCV=np.amax(self.curvature_val)
-            self.minCV=np.amin(self.curvature_val)
             self.first = self.path_first_flg = True
             self.gflag=False
             rospy.loginfo("get path")
