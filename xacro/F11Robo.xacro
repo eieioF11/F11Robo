@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot name="F11Robot" xmlns:xacro="http://ros.org/wiki/xacro">
 	<xacro:include filename="$(find F11Robo)/xacro/lidar.xacro" />
-	<xacro:include filename="$(find F11Robo_CG)/xacro/imu.xacro" />
+	<xacro:include filename="$(find F11Robo)/xacro/imu.xacro" />
 
 	<material name="gray">
 		<color rgba="0.7 0.7 0.7 2.5"/>
