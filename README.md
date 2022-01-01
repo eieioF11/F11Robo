@@ -5,6 +5,10 @@
 ubuntuバージョン: 18.04\
 ROSバージョン: melodic\
 [ROSインストール参考サイト](https://qiita.com/applepieqiita/items/4cd57e337d8756c8db44)
+## rosserial
+```bash
+sudo apt install ros-melodic-rosserial-python
+```
 ## キーボード操作
 ```bash
 sudo apt-get install ros-melodic-teleop-twist-keyboard
