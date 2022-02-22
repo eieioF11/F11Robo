@@ -31,6 +31,15 @@ git clone -b melodic-devel https://github.com/ros/geometry2.git
 cd ~/catkin_ws
 catkin_make
 ```
+## xtion pro live
+```bash
+cd catkin_ws/src
+git clone https://github.com/ros-drivers/openni2_camera.git
+cd ../
+catkin_make
+sudo apt-get install ros-melodic-rgbd-launch
+sudo apt install ros-melodic-pointcloud-to-laserscan
+```
 ## robot_localization
 [ドキュメント](http://docs.ros.org/en/kinetic/api/robot_localization/html/index.html)
 ```bash
@@ -45,6 +54,10 @@ sudo apt-get install -y ros-melodic-jsk-visualization
 ロボット側ではないPCでroscoreを実行したあと以下のコマンドを実行する
 ```bash
 roslaunch F11Robo F11Robo_core.launch
+```
+Xtion Pro Liveを使用する場合
+```bash
+roslaunch F11Robo rsj_pointcloud_to_laserscan.launch
 ```
 カメラを使用する場合は以下のコマンドを実行する
 ```bash

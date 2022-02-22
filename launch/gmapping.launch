@@ -1,6 +1,8 @@
 <launch>
+	<arg name="open_rviz" default="true"/>
 	<!--TF-->
 	<node pkg="tf" type="static_transform_publisher" name="odom_2_base_link" args="0.05 0 0 3.1416 0 0 base_link laser 1" />
+	<node pkg="tf" type="static_transform_publisher" name="odom_2_base_link_camera" args="0.05 0 0 3.1416 0 0 base_link camera_link 100" />
 	<!-- gmapping -->
 	<node pkg="gmapping" type="slam_gmapping" name="mapper">
 		<param name="maxUrange" value="8.0" type="double" />
@@ -17,6 +19,8 @@
 	<param name="robot_description" textfile="$(arg model)" />
 
 	<!-- rviz -->
-	<node pkg="rviz" type="rviz" args="-d '$(find F11Robo)/rviz/gmapping.rviz'" name="visualizer" respawn="true" />
-
+	<group if="$(arg open_rviz)">
+		<node pkg="rviz" type="rviz" name="rviz" required="true"
+			args="-d $(find F11Robo)/rviz/gmapping.rviz"/>
+	</group>
 </launch>

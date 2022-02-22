@@ -7,8 +7,8 @@
 	<!-- odom -->
 	<group unless="$(arg gazebo)">
 		<include file="$(find F11Robo)/launch/odom.launch">
-			<arg name="map_file" value="$(arg map_file)" />
-			<arg name="open_rviz" default="$(arg open_rviz)"/>
+			<arg name="map_file" value="$(arg map_file)" 
+			<arg name="open_rviz" default="$(arg open_rviz)"/
 		</include>
 	</group>
 	<group if="$(arg gazebo)">
