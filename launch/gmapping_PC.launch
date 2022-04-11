@@ -1,5 +1,5 @@
 <launch>
-
+	<arg name="open_rviz" default="true"/>
 	<node pkg="rosserial_python" type="serial_node.py" name="rosserial" output="screen">
 		<param name="port" value="/dev/F11Robo" />
 		<param name="baud" value="115200" />
@@ -33,6 +33,9 @@
 		<param name="ymin" value="-30" type="double" />
 	</node>
 
-	<node pkg="rviz" type="rviz" args="-d '$(find F11Robo)/rviz/gmapping.rviz'" name="visualizer" respawn="true" />
-
+	<!-- rviz -->
+	<group if="$(arg open_rviz)">
+		<node pkg="rviz" type="rviz" name="rviz" required="true"
+			args="-d $(find F11Robo)/rviz/odom.rviz"/>
+	</group>
 </launch>

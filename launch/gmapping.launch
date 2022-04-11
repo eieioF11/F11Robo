@@ -1,4 +1,5 @@
 <launch>
+	<arg name="open_rviz" default="true"/>
 	<!--TF-->
 	<node pkg="tf" type="static_transform_publisher" name="odom_2_base_link" args="0.05 0 0 3.1416 0 0 base_link laser 1" />
 	<!-- gmapping -->
@@ -17,6 +18,8 @@
 	<param name="robot_description" textfile="$(arg model)" />
 
 	<!-- rviz -->
-	<node pkg="rviz" type="rviz" args="-d '$(find F11Robo)/rviz/gmapping.rviz'" name="visualizer" respawn="true" />
-
+	<group if="$(arg open_rviz)">
+		<node pkg="rviz" type="rviz" name="rviz" required="true"
+			args="-d $(find F11Robo)/rviz/odom.rviz"/>
+	</group>
 </launch>

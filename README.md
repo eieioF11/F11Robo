@@ -2,49 +2,63 @@
 対向二輪ロボットを動作させるROSアプリケーション用リポジトリ\
 [対向二輪ロボット情報と基板のファーム](https://github.com/eieioF11/ESP32)
 # 環境構築
-ubuntuバージョン: 18.04\
-ROSバージョン: melodic\
-[ROSインストール参考サイト](https://qiita.com/applepieqiita/items/4cd57e337d8756c8db44)
+ubuntuバージョン: 20.04\
+ROSバージョン: noetic\
+[ROSインストール参考サイト](https://qiita.com/take4eng/items/70f167320ede46e4139c)
+## Serial
+```bash
+sudo apt install ros-noetic-rosserial-python
+```
+## LiDAR
+```bash
+cd ~/catkin_ws/src
+git clone https://github.com/EAIBOT/ydlidar.git
+cd ~/catkin_ws
+catkin_make
+```
+```bash
+cd ~/catkin_ws/src/ydlidar/startup
+chmod 777 *
+sudo sh initenv.sh
+```
+scan topicがRvizで表示されない\\
+ydlidar/src/ydlidar_node.cppを以下のように修正
+```bash
+scan_msg.scan_time = scan.config.scan_time;
+scan_msg.time_increment = scan.config.time_increment;
+```
+↓
+```bash
+//scan_msg.scan_time = scan.config.scan_time;
+//scan_msg.time_increment = scan.config.time_increment;
+```
 ## キーボード操作
 ```bash
-sudo apt-get install ros-melodic-teleop-twist-keyboard
+sudo apt-get install ros-noetic-teleop-twist-keyboard
 ```
 ## gmapping
 ```bash
-cd ~/catkin_ws/src
-git clone https://github.com/ros-perception/slam_gmapping
-git clone https://github.com/ros-perception/openslam_gmapping.git
-cd ~/catkin_ws
-catkin_make
+sudo apt-get install ros-noetic-gmapping
 ```
 ## navigation
 ```bash
 sudo apt install libbullet-dev libsdl-image1.2-dev libsdl-dev
-cd ~/catkin_ws/src
-git clone -b melodic-devel https://github.com/ros-planning/navigation.git
-git clone -b ros1 https://github.com/ros-planning/navigation_msgs.git
-git clone -b melodic-devel https://github.com/ros/geometry2.git
-cd ~/catkin_ws
-catkin_make
+sudo apt-get install ros-noetic-navigation
 ```
 ## robot_localization
 [ドキュメント](http://docs.ros.org/en/kinetic/api/robot_localization/html/index.html)
 ```bash
-sudo apt-get install -y ros-melodic-robot-localization
+sudo apt-get install -y ros-noetic-robot-localization
 ```
 ## jsk visualization
 [ドキュメント](https://jsk-visualization.readthedocs.io/en/latest/)
 ```bash
-sudo apt-get install -y ros-melodic-jsk-visualization
+sudo apt-get install -y ros-noetic-jsk-visualization
 ```
 # ロボット側のノード
 ロボット側ではないPCでroscoreを実行したあと以下のコマンドを実行する
 ```bash
 roslaunch F11Robo F11Robo_core.launch
-```
-カメラを使用する場合は以下のコマンドを実行する
-```bash
-rosrun cv_camera cv_camera_node _property_0_code:=404 _property_0_code:=1
 ```
 # キーボード操作
 以下のコマンドを実行するとキーボードからロボットを操作できる。
@@ -111,21 +125,6 @@ rosrun  F11Robo F11Robo_node
 ```
 ![goal](/image/goal.png)
 # 開発メモ
-## ラズパイでcatkin_make_isolatedが実行できない場合
-```bash
-sudo chown $USER: -R /home/pi/ros_catkin_ws
-```
-## ROS 複数台接続方法
-メインPCのIPが192.168.0.117のとき
-```bash
-export ROS_IP=192.168.0.117
-roscore
-```
-接続するPCのIPが192.168.0.111のとき
-```bash
-export ROS_MASTER_URI=http://192.168.0.117:11311
-export ROS_IP=192.168.0.111
-```
 ## bashrcへの記入
 geditがインストールされている場合。gedit以外のエディタを使用してもよ。
 ```bash
@@ -184,24 +183,3 @@ sudo service udev reload
 ls /dev/F11Robo
 ```
 上記のコマンドでF11Roboが表示されれば成功
-## カメラを使用するためのノードインストール方法(ラズパイ)
-ワークスペースのsrcに移動して以下のコマンドを実行
-```bash
-git clone https://github.com/ros-perception/image_common.git
-git clone https://github.com/ros-perception/vision_opencv.git
-git clone https://github.com/OTL/cv_camera.git
-cd ../
-catkin_make_isolated
-```
-## Raspberry Pi4 メモ
-### 時刻手動設定
-ラズパイ単体ではなく外部のPCと接続してロボットを動作させる場合時刻の同期が必要になる
-```bash
-sudo date --set='YYYY/MM/DD hh:mm:ss'
-sudo date MMDDhhmmYYYY.ss
-```
-Ex. 2021年5月1日 1時30分30秒
-```bash
-sudo date --set='2021/05/01 01:30:30'
-sudo date 050101302021.30
-```

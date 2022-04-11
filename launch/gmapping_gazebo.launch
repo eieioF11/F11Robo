@@ -1,4 +1,5 @@
 <launch>
+	<arg name="open_rviz" default="true"/>
 	<!-- gmapping -->
 	<node pkg="gmapping" type="slam_gmapping" name="mapper">
 		<param name="maxUrange" value="8.0" type="double" />
@@ -14,6 +15,8 @@
 	</node>
 
 	<!-- rviz -->
-	<node pkg="rviz" type="rviz" args="-d '$(find F11Robo)/rviz/gmapping_gazebo.rviz'" name="visualizer" respawn="true" />
-
+	<group if="$(arg open_rviz)">
+		<node pkg="rviz" type="rviz" name="rviz" required="true"
+			args="-d $(find F11Robo)/rviz/odom.rviz"/>
+	</group>
 </launch>
