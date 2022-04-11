@@ -5,6 +5,21 @@
 ubuntuバージョン: 20.04\
 ROSバージョン: noetic\
 [ROSインストール参考サイト](https://qiita.com/take4eng/items/70f167320ede46e4139c)
+## ssh
+### インストール
+```bash
+sudo apt install openssh-server
+```
+### サーバーの実行
+```bash
+sudo systemctl enable ssh
+
+sudo systemctl start ssh
+```
+### 自動起動設定
+```bash
+sudo systemctl enable ssh
+```
 ## Serial
 ```bash
 sudo apt install ros-noetic-rosserial-python
@@ -31,6 +46,14 @@ scan_msg.time_increment = scan.config.time_increment;
 ```bash
 //scan_msg.scan_time = scan.config.scan_time;
 //scan_msg.time_increment = scan.config.time_increment;
+```
+## Xtion Pro Live
+```bash
+cd catkin_ws/src
+git clone https://github.com/ros-drivers/openni2_camera.git
+cd ../
+catkin_make
+sudo apt-get install ros-noetic-rgbd-launch
 ```
 ## キーボード操作
 ```bash
@@ -59,6 +82,11 @@ sudo apt-get install -y ros-noetic-jsk-visualization
 ロボット側ではないPCでroscoreを実行したあと以下のコマンドを実行する
 ```bash
 roslaunch F11Robo F11Robo_core.launch
+roslaunch openni2_launch openni2.launch
+```
+ssh
+```bash
+ssh ubuntu@f11robo.local
 ```
 # キーボード操作
 以下のコマンドを実行するとキーボードからロボットを操作できる。
