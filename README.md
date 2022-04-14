@@ -13,7 +13,6 @@ sudo apt install openssh-server
 ### サーバーの実行
 ```bash
 sudo systemctl enable ssh
-
 sudo systemctl start ssh
 ```
 ### 自動起動設定

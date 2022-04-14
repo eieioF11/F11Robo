@@ -15,7 +15,7 @@
 	<param name="robot_description" textfile="$(arg model)" />
 
 	<!-- rviz -->
-	<group if="$(arg open_rviz)"> 
+	<group if="$(arg open_rviz)">
 		<node pkg="rviz" type="rviz" name="rviz" required="true"
 			args="-d $(find F11Robo)/rviz/odom.rviz"/>
 	</group>

@@ -36,6 +36,6 @@
 	<!-- rviz -->
 	<group if="$(arg open_rviz)">
 		<node pkg="rviz" type="rviz" name="rviz" required="true"
-			args="-d $(find F11Robo)/rviz/odom.rviz"/>
+			args="-d $(find F11Robo)/rviz/gmapping.rviz"/>
 	</group>
 </launch>
