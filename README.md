@@ -23,6 +23,17 @@ sudo systemctl enable ssh
 ```bash
 sudo apt install ros-noetic-rosserial-python
 ```
+### USB serial設定
+```bash
+cd ~/catkin_ws/src/F11Robo/startup
+chmod 777 *
+sudo sh usbsetup.sh
+```
+確認
+```bash
+ls /dev/F11Robo
+```
+上記のコマンドでF11Roboが表示されれば成功
 ## LiDAR
 ```bash
 cd ~/catkin_ws/src
